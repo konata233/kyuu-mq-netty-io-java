@@ -27,3 +27,9 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+msg-queue-netty-io-java.iml
+.idea/vcs.xml
+.idea/uiDesigner.xml
+.idea/modules.xml
+.idea/misc.xml
+/.idea

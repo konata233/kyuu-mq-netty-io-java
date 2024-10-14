@@ -1,10 +1,10 @@
 package mq.net;
 
 public class RoutingMod {
-    public DataType dataType;
-    public CommandType commandType;
-    public MessageType messageType;
-    public RoutingType routingType;
+    public DataType dataType = DataType.MESSAGE;
+    public CommandType commandType = CommandType.NOP;
+    public MessageType messageType = MessageType.NOP;
+    public RoutingType routingType = RoutingType.NOP;
 
     public RoutingMod(DataType dataType, CommandType commandType, MessageType messageType, RoutingType routingType) {
         this.dataType = dataType;

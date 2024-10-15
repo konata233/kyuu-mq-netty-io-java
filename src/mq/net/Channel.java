@@ -1,13 +1,27 @@
 package mq.net;
 
+import mq.protocol.raw.DataPack;
+
 import java.io.*;
-import java.util.concurrent.locks.*;
 
 public class Channel {
-    private String hostName;
-    private String name;
+    private final String hostName;
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Session getSession() {
+        return session;
+    }
+
+    private final String name;
     private boolean closed;
-    private Session session;
+    private final Session session;
 
     public Channel(String hostName, String name, Session session) {
         this.hostName = hostName;
@@ -35,11 +49,11 @@ public class Channel {
         session.send(data);
     }
 
-    public byte[] read() throws IOException {
+    public DataPack read() throws IOException {
         return session.read(name);
     }
 
-    public byte[] sendAndRead(byte[] data) throws IOException {
+    public DataPack sendAndRead(byte[] data) throws IOException {
         session.send(data);
         return session.read(name);
     }

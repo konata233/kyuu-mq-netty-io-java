@@ -7,13 +7,13 @@ import java.util.concurrent.locks.*;
 import java.util.concurrent.*;
 
 import mq.protocol.DataHead;
+import mq.protocol.raw.DataPack;
 
 public class Session {
     private final ReentrantReadWriteLock streamLock = new ReentrantReadWriteLock();
-    private Socket stream;
-    private String host;
+    private final Socket stream;
+    private final String host;
     private final Map<String, ReentrantReadWriteLock> channels = new ConcurrentHashMap<>();
-    private Session selfRef;
     private final Map<String, Deque<byte[]>> cache = new ConcurrentHashMap<>();
 
     public Session(String host, String address, int port) throws IOException {
@@ -22,7 +22,6 @@ public class Session {
     }
 
     public synchronized void init(Session selfRef) throws SocketException {
-        this.selfRef = selfRef;
         this.setWriteTimeout(1024);
         this.setReadTimeout(1024);
     }
@@ -97,7 +96,7 @@ public class Session {
         }
     }
 
-    public byte[] read(String channelName) throws IOException {
+    public DataPack read(String channelName) throws IOException {
         streamLock.writeLock().lock();
         try {
             InputStream in = stream.getInputStream();
@@ -108,7 +107,23 @@ public class Session {
 
                 byte[] message = new byte[head.getSliceCount() * head.getSliceSize()];
                 int bytes_read = in.read(message);
-                return message;
+                // todo: cache.
+
+                if (!Objects.equals(channelName, head.getChannelName())) {
+                    this.cache.get(head.getChannelName()).add(message);
+                    if (!this.cache.get(channelName).isEmpty()) {
+                        byte[] message_cached = this.cache.get(head.getChannelName()).poll();
+                        return new DataPack(head, message_cached);
+                    }
+                    return new DataPack();
+                } else {
+                    if (!this.cache.get(channelName).isEmpty()) {
+                        this.cache.get(channelName).add(message);
+                        byte[] message_cached = this.cache.get(channelName).poll();
+                        return new DataPack(head, message_cached);
+                    }
+                    return new DataPack(head, message);
+                }
             } else {
                 return null;
             }

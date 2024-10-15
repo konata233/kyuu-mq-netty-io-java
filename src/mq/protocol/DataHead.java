@@ -1,6 +1,5 @@
 package mq.protocol;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -17,7 +16,7 @@ public class DataHead implements ISerializable<DataHead> {
     private int sliceCount;
     private int sliceSize;
     private int count;
-    private short msgSign;
+    private short errCode;
     private short ack;
     private final byte[] reserved = new byte[16];
 
@@ -25,7 +24,7 @@ public class DataHead implements ISerializable<DataHead> {
         this.sliceCount = 1;
         this.sliceSize = 1024;
         this.count = 1;
-        this.msgSign = 0;
+        this.errCode = 0;
         this.ack = 0;
     }
 
@@ -57,7 +56,7 @@ public class DataHead implements ISerializable<DataHead> {
         this.sliceCount = sliceCount;
         this.sliceSize = sliceSize;
         this.count = count;
-        this.msgSign = msgSign;
+        this.errCode = msgSign;
         this.ack = ack;
     }
 
@@ -75,7 +74,7 @@ public class DataHead implements ISerializable<DataHead> {
         buffer.putInt(sliceCount);
         buffer.putInt(sliceSize);
         buffer.putInt(count);
-        buffer.putShort(msgSign);
+        buffer.putShort(errCode);
         buffer.putShort(ack);
         buffer.put(reserved);
         return buffer.array();
@@ -99,7 +98,7 @@ public class DataHead implements ISerializable<DataHead> {
         this.sliceCount = buffer.getInt();
         this.sliceSize = buffer.getInt();
         this.count = buffer.getInt();
-        this.msgSign = buffer.getShort();
+        this.errCode = buffer.getShort();
         this.ack = buffer.getShort();
         buffer.get(this.reserved);
         return this;
@@ -109,8 +108,8 @@ public class DataHead implements ISerializable<DataHead> {
         return ack;
     }
 
-    public short getMsgSign() {
-        return msgSign;
+    public short getErrCode() {
+        return errCode;
     }
 
     public int getCount() {
@@ -157,7 +156,15 @@ public class DataHead implements ISerializable<DataHead> {
         return channel;
     }
 
+    public String getChannelName() {
+        return new String(channel).trim().strip();
+    }
+
     public byte[] getVirtualHost() {
         return virtualHost;
+    }
+
+    public String getVirtualHostName() {
+        return new String(virtualHost).trim().strip();
     }
 }

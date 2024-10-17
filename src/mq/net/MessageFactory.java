@@ -42,6 +42,19 @@ public class MessageFactory {
         return this;
     }
 
+    public MessageFactory routingChain(RoutingChain chain) {
+        int count = 0;
+        for (Routing routing : chain.getRoutings()) {
+            if (count > 2) {
+                break;
+            }
+            this.route(routing);
+            count++;
+        }
+        this.queueName = chain.getQueueName();
+        return this;
+    }
+
     public MessageFactory queueName(String queueName) {
         this.queueName = queueName;
         return this;
